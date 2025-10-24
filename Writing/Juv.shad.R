@@ -163,8 +163,65 @@ summary(geos)
 quantile(geos$Santee.geo)
 # 25th percentile is 0.402 shad/min 
 
+
+## Interesting, seems like Santee, Congaree, and GPD are on a similar level while
+## Savannah and Edisto are similar (lower) values
+
+Santee <- ggplot(geos, aes(x=Year)) +
+  geom_line(aes(y=Santee.geo, color="Santee"), size=1.25, linetype="solid") +
+  geom_hline(yintercept=0.402, color ="red4", linetype = 'dotted', size=1.5) +
+  scale_color_manual(values=c("Q25"="red4", 
+                              "Santee"="steelblue")) +
+  labs(color='') +
+  scale_x_continuous(breaks = seq(2013, 2025, 0002),
+                     expand=c(0.02,0.02), limits=c(2013,2025)) +
+  scale_y_continuous(
+    name=expression("Santee"), breaks=seq(0.2,1.2,0.2),
+    expand=c(0,0), limits=c(0.2,1.2)) +
+  theme(legend.position = c(0.25,0.75)) +
+  theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
+  theme(legend.direction = "horizontal") +
+  theme(panel.grid.major=element_blank()) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(panel.border = element_rect(color="black", fill=NA)) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y= element_text(family = "serif", size=14, vjust=1)) +
+  theme(axis.text.x= element_text(family = "serif", color="black", size=12, vjust=1)) +
+  theme(axis.text.y= element_text(family = "serif", color="black", size=12))
+
+Santee
+
+#----------------------------
+
 quantile(geos$Congaree.geo)
 # Q25 is 0.336 shad/min
+
+Congaree <- ggplot(geos, aes(x=Year)) +
+  geom_line(aes(y=Congaree.geo, color="Congaree"), size=1.25, linetype="solid") +
+  geom_hline(yintercept=0.336, color ="red4", linetype = 'dotted', size=1.5) +
+  scale_color_manual(values=c("Q25"="red4", 
+                              "Congaree"="steelblue")) +
+  labs(color='') +
+  scale_x_continuous(breaks = seq(2013, 2025, 0002),
+                     expand=c(0.02,0.02), limits=c(2013,2025)) +
+  scale_y_continuous(
+    name=expression("Santee"), breaks=seq(0.2,1.2,0.2),
+    expand=c(0,0), limits=c(0.2,1.2)) +
+  theme(legend.position = c(0.25,0.75)) +
+  theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
+  theme(legend.direction = "horizontal") +
+  theme(panel.grid.major=element_blank()) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(panel.border = element_rect(color="black", fill=NA)) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y= element_text(family = "serif", size=14, vjust=1)) +
+  theme(axis.text.x= element_text(family = "serif", color="black", size=12, vjust=1)) +
+  theme(axis.text.y= element_text(family = "serif", color="black", size=12))
+
+Congaree
+
+#----------------------------
+
 
 quantile(geos$Edisto.geo, na.rm = TRUE)
 # Q25 is 0.057 shad/min
@@ -175,10 +232,4 @@ quantile(geos$Savannah.geo)
 quantile(geos$GPD.geo)
 # Q25 is 0.270 shad/min
 
-## Interesting, seems like Santee, Congaree, and GPD are on a similar level while
-## Savannah and Edisto are similar (lower) values
-
-Santee <- ggplot(geos, aes(x=Year)) +
-  geom_line(aes(y=Santee.geo, color="steelblue"), size=1.25, linetype="solid")+
-  geom_hline()
 
