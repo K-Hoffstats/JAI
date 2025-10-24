@@ -148,4 +148,37 @@ totals
 # compliance reporting, and intend to have it as a potential metric for annual
 # sustainability...
 
+# I wrote converted the per-second annual rates (from: 
+# "Compiled_juve.shad_shocking_SUS.xlsx") to per-minute rates in 
+# "annual.geos.minutes.csv"--and read that in
+
+geos <- annual.geos.minutes
+summary(geos)
+# just missing the Edisto rates, because they aren't finished yet...same as the
+# rest of the survey (October 2025), but we move forward!
+
+# I'm wondering if I want individual graphics, faceted together, with individual
+# Q25's established (horizontal red lines)?
+
+quantile(geos$Santee.geo)
+# 25th percentile is 0.402 shad/min 
+
+quantile(geos$Congaree.geo)
+# Q25 is 0.336 shad/min
+
+quantile(geos$Edisto.geo, na.rm = TRUE)
+# Q25 is 0.057 shad/min
+
+quantile(geos$Savannah.geo)
+# Q25 is 0.048 shad/min
+
+quantile(geos$GPD.geo)
+# Q25 is 0.270 shad/min
+
+## Interesting, seems like Santee, Congaree, and GPD are on a similar level while
+## Savannah and Edisto are similar (lower) values
+
+Santee <- ggplot(geos, aes(x=Year)) +
+  geom_line(aes(y=Santee.geo, color="steelblue"), size=1.25, linetype="solid")+
+  geom_hline()
 
