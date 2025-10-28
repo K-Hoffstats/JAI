@@ -1,6 +1,6 @@
 ##############################################################################
 #### Juvenile shad electrofishing survey ####
-#### last modified: 10232025
+#### last modified: 10272025
 
 # The purpose here is to recreate some of the traditional "looked at" graphics
 # and/or analyses for the juvenile shad report, for DFP-25. Intent is to make
@@ -30,10 +30,11 @@
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
+library(scales)
 
 # 2025.SC.catch.rates file #
 
-SC<-`2025.SC.catch.rates`
+SC<-`X2025_SC_catch_rates`
 summary(SC)
 
 SC$Date<-as.Date(SC$Date, "%m/%d/%Y" )
@@ -49,8 +50,8 @@ max(SC$Temp)
 daily.catch <- ggplot(SC, aes(x=Date)) +
   geom_line(aes(y=Santee.shad.per.min * 14 / 1, color="Santee"), size=1.25, linetype="solid") +
   geom_line(aes(y=Congaree.shad.per.min * 14 / 1, color="Congaree"), size=1.25, linetype="solid") +
-  geom_line(aes(y=Temp, color="Temp"), size=1.25, linetype="solid") +
-  scale_color_manual(values=c("Temp"="red4", 
+  geom_line(aes(y=Temp, color="Water Temperature"), size=1.25, linetype="solid") +
+  scale_color_manual(values=c("Water Temperature"="red4", 
                               "Santee"="steelblue",
                               "Congaree"="forestgreen")) +
   labs(color='') +
@@ -58,7 +59,7 @@ daily.catch <- ggplot(SC, aes(x=Date)) +
                limits=as.Date(c('2025-06-01','2025-10-30')),
                expand=c(0,0.01)) +
   scale_y_continuous(
-    name=expression("Water Temperature (°C)"),
+    name=expression("Water Temperature (?C)"),
     sec.axis = sec_axis(~.* 1 / 14, name = "Catch Rate (# AMS/min)", breaks=seq(0,2,0.5)),
     breaks=seq(7,28,7),
     expand=c(0,0), limits=c(0,28)) +
@@ -69,7 +70,7 @@ daily.catch <- ggplot(SC, aes(x=Date)) +
   theme(legend.position = c(0.75,0.6)) +
   theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
   theme(legend.direction = "horizontal") +
-  theme(legend.text=element_text(size=10, family = "serif")) +
+  theme(legend.text=element_text(color="black", family = "serif", size=12)) +
   theme(axis.ticks=element_blank())
 
 
@@ -81,6 +82,9 @@ daily.catch <- daily.catch + theme(axis.title.x = element_text(family = "serif",
   theme(axis.title.x= element_blank())
 
 daily.catch
+
+ggsave(daily.catch, filename = '2025.daily.catch.png', dpi = 300, type = 'cairo',
+       width = 9, height = 7, units = 'in')
 
 # That will probably suffice at telling the story--interesting that we never
 # really had > 1 shad/min, aside from the July sample date on the Santee.
@@ -104,7 +108,6 @@ daily.catch
 summary(annuals)
 # pretty big conversion here--looks like 1/53
 
-library(scales)
 
 totals <- ggplot() +
   geom_col(data = annuals, aes(x=Year, y=AMS.collected * 50 / 1),
@@ -118,7 +121,7 @@ totals <- ggplot() +
     name=expression("Effort (seconds)"),
     sec.axis = sec_axis(~.* 1 / 50, name = "AMS Collected (#)", breaks=seq(0,3312,828), label=comma),
     breaks=seq(0,165600,41400), label=comma,
-    expand=c(0,0), limits=c(0,165600)) +
+    expand=c(0,0.02), limits=c(0,167000)) +
   
   theme(legend.position = c(0.6,0.85)) +
   theme(panel.grid.major=element_blank()) +
@@ -131,6 +134,9 @@ totals <- ggplot() +
   theme(axis.text.y= element_text(family = "serif", color="black", size=12))
 
 totals
+
+ggsave(totals, filename = 'totals.png', dpi = 300, type = 'cairo',
+       width = 9, height = 7, units = 'in')
 
 # I think I'm okay with this--perhaps change the effort line to red color, but
 # it looked easier to read with orange, for whatever reason...I'll probably
@@ -152,7 +158,7 @@ totals
 # "Compiled_juve.shad_shocking_SUS.xlsx") to per-minute rates in 
 # "annual.geos.minutes.csv"--and read that in
 
-geos <- annual.geos.minutes
+geos <- annual_geos_minutes
 summary(geos)
 # just missing the Edisto rates, because they aren't finished yet...same as the
 # rest of the survey (October 2025), but we move forward!
@@ -163,10 +169,6 @@ summary(geos)
 quantile(geos$Santee.geo)
 # 25th percentile is 0.402 shad/min 
 
-
-## Interesting, seems like Santee, Congaree, and GPD are on a similar level while
-## Savannah and Edisto are similar (lower) values
-
 Santee <- ggplot(geos, aes(x=Year)) +
   geom_line(aes(y=Santee.geo, color="Santee"), size=1.25, linetype="solid") +
   geom_hline(yintercept=0.402, color ="red4", linetype = 'dotted', size=1.5) +
@@ -176,11 +178,12 @@ Santee <- ggplot(geos, aes(x=Year)) +
   scale_x_continuous(breaks = seq(2013, 2025, 0002),
                      expand=c(0.02,0.02), limits=c(2013,2025)) +
   scale_y_continuous(
-    name=expression("Santee"), breaks=seq(0.2,1.2,0.2),
+    name=expression("Catch Per Minute (# AMS)"), breaks=seq(0,1.2,0.3),
     expand=c(0,0), limits=c(0.2,1.2)) +
-  theme(legend.position = c(0.25,0.75)) +
+  theme(legend.position = c(0.55,0.8)) +
   theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
   theme(legend.direction = "horizontal") +
+  theme(legend.text=element_text(color="black", family = "serif", size=12)) +
   theme(panel.grid.major=element_blank()) +
   theme(panel.grid.minor=element_blank()) +
   theme(panel.border = element_rect(color="black", fill=NA)) +
@@ -205,11 +208,42 @@ Congaree <- ggplot(geos, aes(x=Year)) +
   scale_x_continuous(breaks = seq(2013, 2025, 0002),
                      expand=c(0.02,0.02), limits=c(2013,2025)) +
   scale_y_continuous(
-    name=expression("Santee"), breaks=seq(0.2,1.2,0.2),
-    expand=c(0,0), limits=c(0.2,1.2)) +
-  theme(legend.position = c(0.25,0.75)) +
+    name=expression("Catch Per Minute (# AMS)"), breaks=seq(0,1.0,0.25),
+    expand=c(0,0), limits=c(0.2,1.0)) +
+  theme(legend.position = c(0.55,0.8)) +
   theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
   theme(legend.direction = "horizontal") +
+  theme(legend.text=element_text(color="black", family = "serif", size=12)) +
+  theme(panel.grid.major=element_blank()) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(panel.border = element_rect(color="black", fill=NA)) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y= element_blank()) +
+  theme(axis.text.x= element_text(family = "serif", color="black", size=12, vjust=1)) +
+  theme(axis.text.y= element_text(family = "serif", color="black", size=12))
+
+Congaree
+
+#----------------------------
+
+quantile(geos$Edisto.geo, na.rm = TRUE)
+# Q25 is 0.057 shad/min
+
+Edisto <- ggplot(geos, aes(x=Year)) +
+  geom_line(aes(y=Edisto.geo, color="Edisto"), size=1.25, linetype="solid") +
+  geom_hline(yintercept=0.057, color ="red4", linetype = 'dotted', size=1.5) +
+  scale_color_manual(values=c("Q25"="red4", 
+                              "Edisto"="steelblue")) +
+  labs(color='') +
+  scale_x_continuous(breaks = seq(2013, 2025, 0002),
+                     expand=c(0.02,0.02), limits=c(2013,2025)) +
+  scale_y_continuous(
+    name=expression("Catch Per Minute (# AMS)"), breaks=seq(0,0.36,0.12),
+    expand=c(0,0), limits=c(0,0.38)) +
+  theme(legend.position = c(0.55,0.8)) +
+  theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
+  theme(legend.direction = "horizontal") +
+  theme(legend.text=element_text(color="black", family = "serif", size=12)) +
   theme(panel.grid.major=element_blank()) +
   theme(panel.grid.minor=element_blank()) +
   theme(panel.border = element_rect(color="black", fill=NA)) +
@@ -218,18 +252,77 @@ Congaree <- ggplot(geos, aes(x=Year)) +
   theme(axis.text.x= element_text(family = "serif", color="black", size=12, vjust=1)) +
   theme(axis.text.y= element_text(family = "serif", color="black", size=12))
 
-Congaree
+Edisto
 
 #----------------------------
-
-
-quantile(geos$Edisto.geo, na.rm = TRUE)
-# Q25 is 0.057 shad/min
 
 quantile(geos$Savannah.geo)
 # Q25 is 0.048 shad/min
 
+Savannah <- ggplot(geos, aes(x=Year)) +
+  geom_line(aes(y=Savannah.geo, color="Savannah"), size=1.25, linetype="solid") +
+  geom_hline(yintercept=0.048, color ="red4", linetype = 'dotted', size=1.5) +
+  scale_color_manual(values=c("Q25"="red4", 
+                              "Savannah"="steelblue")) +
+  labs(color='') +
+  scale_x_continuous(breaks = seq(2013, 2025, 0002),
+                     expand=c(0.02,0.02), limits=c(2013,2025)) +
+  scale_y_continuous(
+    name=expression("Catch Per Minute (# AMS)"), breaks=seq(0,0.3,0.1),
+    expand=c(0,0), limits=c(0,0.3)) +
+  theme(legend.position = c(0.55,0.8)) +
+  theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
+  theme(legend.direction = "horizontal") +
+  theme(legend.text=element_text(color="black", family = "serif", size=12)) +
+  theme(panel.grid.major=element_blank()) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(panel.border = element_rect(color="black", fill=NA)) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y= element_blank ()) +
+  theme(axis.text.x= element_text(family = "serif", color="black", size=12, vjust=1)) +
+  theme(axis.text.y= element_text(family = "serif", color="black", size=12))
+
+Savannah
+
+#----------------------------
+
 quantile(geos$GPD.geo)
 # Q25 is 0.270 shad/min
 
+GPD <- ggplot(geos, aes(x=Year)) +
+  geom_line(aes(y=GPD.geo, color="GPD"), size=1.25, linetype="solid") +
+  geom_hline(yintercept=0.270, color ="red4", linetype = 'dotted', size=1.5) +
+  scale_color_manual(values=c("Q25"="red4", 
+                              "GPD"="steelblue")) +
+  labs(color='') +
+  scale_x_continuous(breaks = seq(2013, 2025, 0002),
+                     expand=c(0.02,0.02), limits=c(2013,2025)) +
+  scale_y_continuous(
+    name=expression("Catch Per Minute (# AMS)"), breaks=seq(0,1.5,0.5),
+    expand=c(0,0), limits=c(0,1.6)) +
+  theme(legend.position = c(0.55,0.8)) +
+  theme(legend.background = element_rect(fill="slategray1", size=0.25, linetype="solid", color="gray20")) +
+  theme(legend.direction = "horizontal") +
+  theme(legend.text=element_text(color="black", family = "serif", size=12)) +
+  theme(panel.grid.major=element_blank()) +
+  theme(panel.grid.minor=element_blank()) +
+  theme(panel.border = element_rect(color="black", fill=NA)) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y= element_text(family = "serif", size=14, vjust=1)) +
+  theme(axis.text.x= element_text(family = "serif", color="black", size=12, vjust=1)) +
+  theme(axis.text.y= element_text(family = "serif", color="black", size=12))
 
+GPD
+
+#----------------------------
+
+library(cowplot)
+# probably easiest to see these differences side-by-side...
+
+rivers <- plot_grid(Santee, Congaree, Edisto, Savannah, GPD, ncol=2, align="h")
+
+ggsave(rivers, filename = 'rivers.png', dpi = 300, type = 'cairo',
+       width = 9, height = 7, units = 'in')
+
+## Interesting, seems like Santee, Congaree, and GPD generally have similar levels
+## of abundance, while Savannah and Edisto have similar (lower) abundance
